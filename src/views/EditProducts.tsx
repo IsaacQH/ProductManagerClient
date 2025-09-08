@@ -2,10 +2,11 @@
 
 import { Link, Form, useActionData, type ActionFunctionArgs, redirect, type LoaderFunctionArgs, useLoaderData } from "react-router-dom"
 import ErrorMessage from "../components/ErrorMessage"
-import {addProduct, getProductById} from "../services/ProductService"
+import {getProductById, updateProduct} from "../services/ProductService"
 import type { Product } from "../types"
 
 
+//Funcion para cargar el elemento por id
 export async function loader({params}: LoaderFunctionArgs) {    //extrae el valor : dse la url, en este caso id
     if(params.id !== undefined){
         const product = await getProductById(Number(params.id)) //Hacemos que el valor sea un numero  
@@ -16,7 +17,8 @@ export async function loader({params}: LoaderFunctionArgs) {    //extrae el valo
     }
 }
 
-export async function action({request}:ActionFunctionArgs) {   //Captura el valor del input con action
+//Funcion action que permite realizar el update a la base de datos
+export async function action({request, params}:ActionFunctionArgs) {   //Captura el valor del input con action
   const data = Object.fromEntries(await request.formData())   //Accede a los datos del FormData
   let error = ""  //Iniciamos el error
   if(Object.values(data).includes("")){    //Si esta vacio regresa un error
@@ -24,15 +26,23 @@ export async function action({request}:ActionFunctionArgs) {   //Captura el valo
   }
   if(error.length) return error    //Si existe el error regresamos el error
 
-  await addProduct(data)   //Espera a que el servicio de ProductServices haga lo sutyo
+  if(params.id !== undefined){
+    await updateProduct(data, Number(params.id))   //Espera a que el servicio de ProductServices haga lo sutyo
+  }
+
   return redirect('/')       //Redirige a home
 }
 
+//Disponibilidad
+const availabilityOptions = [
+   { name: 'In stock', value: true},
+   { name: 'Out of stock', value: false}
+]
 
 export default function EditProduct() {
+
     const product = useLoaderData() as Product
     const error = useActionData() as string  //Mandamos a llamar al error
-
 
   return (
     <>
@@ -69,6 +79,7 @@ export default function EditProduct() {
                 defaultValue={product.name}
             />
         </div>
+        
         <div className="mb-4">
             <label
                 className="text-gray-800"
@@ -83,6 +94,23 @@ export default function EditProduct() {
                 defaultValue={product.price}
             />
         </div>
+
+        <div className="mb-4">
+        <label
+            className="text-gray-800"
+            htmlFor="availability"
+        >Availability:</label>
+        <select 
+            id="availability"
+            className="mt-2 block w-full p-3 bg-gray-50"
+            name="availability"
+            defaultValue={product?.availability.toString()}
+        >
+            {availabilityOptions.map(option => (
+              <option key={option.name} value={option.value.toString()}>{option.name}</option>
+            ))}
+        </select>
+    </div>
 
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <input

@@ -1,6 +1,7 @@
-import {parse, safeParse} from 'valibot'
+import {safeParse} from 'valibot'
 import { DraftProductSchema, ProductSchema, ProductsSchema, type Product} from "../types"
 import axios from "axios"
+import { toBoolean } from '../utils';
 
 type ProductData = {
       [k: string]: FormDataEntryValue;
@@ -34,9 +35,7 @@ export async function getProducts(){
     try {
         const url = `${import.meta.env.VITE_API_URL}/api/products`  //Es la api que configuramos en el servidos Node
         const {data} = await axios.get(url)
-        console.log(data)
         const result = safeParse(ProductsSchema, data.data)
-        console.log(result)
         if(result){
             return result.output
         } else{
@@ -48,7 +47,7 @@ export async function getProducts(){
 }
 
 
-//Funcion para mostrar el prioducto al editar
+//Funcion para mostrar el producto al editar
 export async function getProductById(id:Product['id']){
     try {
         const url = `${import.meta.env.VITE_API_URL}/api/products/${id}`  //Es la api que configuramos en el servidos Node
@@ -58,6 +57,24 @@ export async function getProductById(id:Product['id']){
             return result.output
         } else{
             throw new   Error('Hubo un error');
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+//Funcion para hacer update del producto
+export async function updateProduct(data:ProductData, id:Product['id']) {
+    try {
+        const result = safeParse(ProductSchema, {
+            id: id,
+            name: data.name,
+            price: Number(data.price),
+            availability: toBoolean(data.availability.toString())
+        })
+        if(result.success){    //Si se obtienen bien los datos del update entonces pasamos a hacer el metodo PUT
+            const url = `${import.meta.env.VITE_API_URL}/api/products/${id}`  //Es la api que configuramos en el servidos Node
+            await axios.put(url, result.output)
         }
     } catch (error) {
         console.log(error)

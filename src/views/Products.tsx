@@ -5,7 +5,6 @@ import { type Product } from "../types"
 
 export async function loader() {
   const products = await getProducts() //Llama la funcion y regresa los productos y los guarda
-  
   return products
 }
 
