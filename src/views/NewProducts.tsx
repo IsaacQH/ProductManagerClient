@@ -2,6 +2,7 @@
 import { Link, Form, useActionData, type ActionFunctionArgs, redirect } from "react-router-dom"
 import ErrorMessage from "../components/ErrorMessage"
 import {addProduct} from "../services/ProductService"
+import ProductForm from "../components/ProductForm"
 
 export async function action({request}:ActionFunctionArgs) {   //Captura el valor del input con action
   const data = Object.fromEntries(await request.formData())   //Accede a los datos del FormData
@@ -42,39 +43,14 @@ export default function NerProducts() {
         method='POST'
       >
   
-        <div className="mb-4">
-            <label
-                className="text-gray-800"
-                htmlFor="name"
-            >Name:</label>
-            <input 
-                id="name"
-                type="text"
-                className="mt-2 block w-full p-3 bg-gray-50 rounded-lg"
-                placeholder="Name of the Product"
-                name="name"
-            />
-        </div>
-        <div className="mb-4">
-            <label
-                className="text-gray-800"
-                htmlFor="price"
-            >Price:</label>
-            <input 
-                id="price"
-                type="number"
-                className="mt-2 rounded-lg block w-full p-3 bg-gray-50"
-                placeholder="Prece of the product. ej. 200, 300"
-                name="price"
-            />
-        </div>
+      <ProductForm/>
 
         {error && <ErrorMessage>{error}</ErrorMessage>}
         <input
           type="submit"
           className="mt-5 w-full p-2 text-lg cursor-pointer bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-lg shadow-md shadow-teal-500/50 hover:shadow-lg hover:shadow-teal-500/70
                transition-all duration-300 ease-in-out"
-          value="Register Product"
+          value="Add product"
         />
       </Form>
 
